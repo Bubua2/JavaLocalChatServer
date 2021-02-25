@@ -2,6 +2,7 @@ package org.academiadecodigo.bootcamp57.javalocalchatserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class ClientDispatcher implements Runnable {
 
@@ -17,6 +18,10 @@ public class ClientDispatcher implements Runnable {
         this.name = name;
     }
 
+    public void changeName(String name){
+        this.name = name;
+    }
+
     @Override
     public void run() {
         try {
@@ -26,11 +31,28 @@ public class ClientDispatcher implements Runnable {
             while (clientConnectionSocket.isBound()) {
                 String message = reader.readLine();
 
-                if(message.equals("exit")){
+                if(message.equalsIgnoreCase("/exit")){
                     server.broadcast(name + " has disconnected from the chat");
                     clientConnectionSocket.close();
                     return;
                 }
+
+                if(message.equalsIgnoreCase("/help")){
+                    writer.println("/exit ----> to disconnect from the chat \n/change ----> to change your client name \n/help ----> to show all commands");
+                    continue;
+                }
+
+                //Something wrong with this, depois do comando diz para meter o nome novo e depois desse inpu parece que fica num scanner infinito sem nunca para de aceitar input e fazer algo com ele
+                /*if(message.equalsIgnoreCase("/change")){
+                    Scanner nameChange = new Scanner(System.in);
+                    writer.println("What do you wish to change your name to?");
+                    String newName = nameChange.nextLine();
+                    nameChange.close();
+                    server.broadcast(name + " has changed his name to " + newName);
+                    changeName(newName);
+                    continue;
+                }*/
+
                 String fullMessage = name + ": " + message;
                 server.broadcast(fullMessage);
 
@@ -43,6 +65,6 @@ public class ClientDispatcher implements Runnable {
     }
 
     public void send(String message){
-        writer.write(message);
+        writer.println(message);
     }
 }
