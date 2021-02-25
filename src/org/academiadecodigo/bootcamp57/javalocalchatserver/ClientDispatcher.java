@@ -5,11 +5,14 @@ import java.net.Socket;
 
 public class ClientDispatcher implements Runnable {
 
+    private Server server;
     private String name;
     private Socket clientConnectionSocket;
+    private BufferedReader reader;
+    private PrintWriter writer;
 
-    public ClientDispatcher(String name, Socket clientConnectionSocket){
-
+    public ClientDispatcher(String name, Socket clientConnectionSocket, Server server){
+        this.server = server;
         this.clientConnectionSocket = clientConnectionSocket;
         this.name = name;
     }
@@ -17,22 +20,29 @@ public class ClientDispatcher implements Runnable {
     @Override
     public void run() {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(clientConnectionSocket.getInputStream()));
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientConnectionSocket.getOutputStream()));
+            reader = new BufferedReader(new InputStreamReader(clientConnectionSocket.getInputStream()));
+            writer = new PrintWriter(new OutputStreamWriter(clientConnectionSocket.getOutputStream()), true);
 
             while (clientConnectionSocket.isBound()) {
                 String message = reader.readLine();
-                System.out.println(message);
+
                 if(message.equals("exit")){
-                    System.out.println("This client has closed the connection");
+                    server.broadcast(name + " has disconnected from the chat");
                     clientConnectionSocket.close();
                     return;
                 }
+                String fullMessage = name + ": " + message;
+                server.broadcast(fullMessage);
+
             }
 
 
         } catch(IOException e){
             e.getStackTrace();
         }
+    }
+
+    public void send(String message){
+        writer.write(message);
     }
 }

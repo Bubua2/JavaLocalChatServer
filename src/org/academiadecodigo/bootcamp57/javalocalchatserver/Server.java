@@ -3,21 +3,16 @@ package org.academiadecodigo.bootcamp57.javalocalchatserver;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
 
-    private static final int port = 42069;
-    private static boolean hasConnections;
-    public int clientIndex;
+    private final int port = 42069;
+    private final ArrayList<ClientDispatcher> clientList = new ArrayList<>();
 
-    public int getClientIndex(){
-        return clientIndex;
-    }
-
-
-    public static void main (String[] args){
+    public void start(){
 
         int clientIndex = 0;
 
@@ -28,9 +23,9 @@ public class Server {
 
                 Socket clientSocket = serverSocket.accept();
                 clientIndex++;
-                ClientDispatcher clientDispatcher = new ClientDispatcher("Client -" + clientIndex, clientSocket);
+                ClientDispatcher clientDispatcher = new ClientDispatcher(("Client<" + clientIndex + ">"), clientSocket, this);
                 fixedPool.submit(clientDispatcher);
-
+                clientList.add(clientDispatcher);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,6 +33,12 @@ public class Server {
 
 
 
+    }
+
+    public void broadcast(String message){
+        for (ClientDispatcher client : clientList) {
+            client.send(message);
+        }
     }
 
 }
