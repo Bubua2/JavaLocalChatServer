@@ -22,6 +22,10 @@ public class ClientDispatcher implements Runnable {
         this.name = name;
     }
 
+    public String getName(){
+        return name;
+    }
+
     @Override
     public void run() {
         try {
@@ -38,20 +42,20 @@ public class ClientDispatcher implements Runnable {
                 }
 
                 if(message.equalsIgnoreCase("/help")){
-                    writer.println("/exit ----> to disconnect from the chat \n/change ----> to change your client name \n/help ----> to show all commands");
-                    continue;
+                    writer.println("/exit ----> to disconnect from the chat \n/change ----> to change your client name \n/help ----> to show all commands \n/list ----> to see all clients that are currently connected\n");
                 }
 
                 //Something wrong with this, depois do comando diz para meter o nome novo e depois desse inpu parece que fica num scanner infinito sem nunca para de aceitar input e fazer algo com ele
-                /*if(message.equalsIgnoreCase("/change")){
-                    Scanner nameChange = new Scanner(System.in);
+                if(message.equalsIgnoreCase("/change")){
                     writer.println("What do you wish to change your name to?");
-                    String newName = nameChange.nextLine();
-                    nameChange.close();
+                    String newName = reader.readLine();
                     server.broadcast(name + " has changed his name to " + newName);
-                    changeName(newName);
-                    continue;
-                }*/
+                    this.changeName(newName);
+                }
+
+                if(message.equalsIgnoreCase("/list")){
+                    writer.println("List of all clients currently connected: \n" + server.listAllClients());
+                }
 
                 String fullMessage = name + ": " + message;
                 server.broadcast(fullMessage);

@@ -19,7 +19,7 @@ public class Server {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
             ExecutorService fixedPool = Executors.newFixedThreadPool(21);
-            while(true){
+            while(clientList.size() < 21){
 
                 Socket clientSocket = serverSocket.accept();
                 clientIndex++;
@@ -27,18 +27,24 @@ public class Server {
                 fixedPool.submit(clientDispatcher);
                 clientList.add(clientDispatcher);
             }
+            serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
+        System.out.println("The server is now going to shutdown. Take cover!!!");
     }
 
     public void broadcast(String message){
         for (ClientDispatcher client : clientList) {
             client.send(message);
         }
+    }
+
+    public String listAllClients(){
+        for (ClientDispatcher client : clientList) {
+            return (client.getName() + "\n");
+        }
+        return null;
     }
 
 }
